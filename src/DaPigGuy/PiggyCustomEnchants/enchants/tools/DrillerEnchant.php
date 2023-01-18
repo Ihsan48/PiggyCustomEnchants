@@ -52,13 +52,32 @@ class DrillerEnchant extends RecursiveEnchant
                              $block->getSide($faceUp)->getSide(Facing::opposite($faceLeft)), //Top Right
                              $block->getSide(Facing::opposite($faceUp))->getSide($faceLeft), //Bottom Left
                              $block->getSide(Facing::opposite($faceUp))->getSide(Facing::opposite($faceLeft)) //Bottom Right
-                         ] as $b) {
+                        ] as $b) {
                     $player->getWorld()->useBreakOn($b->getPosition(), $item, $player, true);
                 }
                 if (!$block->getPosition()->equals($event->getBlock()->getPosition())) {
                     $player->getWorld()->useBreakOn($block->getPosition(), $item, $player, true);
                 }
             }
+            $drops = $event->getDrops();
+            foreach ($drops as $key => $drop) {
+                if ($player->getInventory()->canAddItem($drop)) {
+                    unset($drops[$key]);
+                    $player->getInventory()->addItem($drop);
+                    continue;
+                }
+                foreach ($player->getInventory()->all($drop) as $item) {
+                    if ($item->getCount() < $item->getMaxStackSize()) {
+                        $newDrop = clone $drop->setCount($drop->getCount() - ($item->getMaxStackSize() - $item->getCount()));
+                        $player->getInventory()->addItem($drop->setCount($item->getMaxStackSize() - $item->getCount()));
+                        $drop = $newDrop;
+                    }
+                }
+                $drops[$key] = $drop;
+            }
+            $player->getXpManager()->addXp($event->getXpDropAmount());
+            $event->setDrops($drops);
+            $event->setXpDropAmount(0);
         }
     }
 }
