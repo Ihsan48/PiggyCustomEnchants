@@ -7,8 +7,6 @@ namespace DaPigGuy\PiggyCustomEnchants\enchants\armor;
 use DaPigGuy\PiggyCustomEnchants\enchants\CustomEnchant;
 use DaPigGuy\PiggyCustomEnchants\enchants\TickingEnchantment;
 use DaPigGuy\PiggyCustomEnchants\utils\AllyChecks;
-use brokiem\snpc\entity\CustomHuman;
-use brokiem\snpc\entity\BaseNPC;
 use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -32,7 +30,7 @@ class CactusEnchant extends TickingEnchantment
     public function tick(Player $player, Item $item, Inventory $inventory, int $slot, int $level): void
     {
         foreach ($player->getWorld()->getNearbyEntities($player->getBoundingBox()->expandedCopy(1, 0, 1), $player) as $entity) {
-            if ($entity instanceof Living && !AllyChecks::isAlly($player, $entity) && !$entity instanceof CustomHuman || !$entity instanceof BaseNPC) {
+            if ($entity instanceof Living && !AllyChecks::isAlly($player, $entity)) {
                 $ev = new EntityDamageByEntityEvent($player, $entity, EntityDamageEvent::CAUSE_CONTACT, 1);
                 $entity->attack($ev);
             }
